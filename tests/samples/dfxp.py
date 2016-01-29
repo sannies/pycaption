@@ -176,7 +176,7 @@ SAMPLE_DFXP_WITHOUT_REGION_AND_STYLE = """
  </body>
 </tt>"""
 
-SAMPLE_DFXP_WITH_POSITIONING = """<?xml version="1.0" encoding="utf-8"?>
+SAMPLE_DFXP_WITH_POSITIONING = u"""<?xml version="1.0" encoding="utf-8"?>
 <tt xml:lang="en-us"
     xmlns="http://www.w3.org/ns/ttml"
     xmlns:tts='http://www.w3.org/ns/ttml#styling'
@@ -1123,4 +1123,23 @@ DFXP_WITH_ALTERNATIVE_TIMING_FORMATS = u"""\
         </p>
     </div>
 </body>
+</tt>"""
+
+DFXP_WITH_FRAME_TIMING = u"""\
+<?xml version="1.0" encoding="utf-8"?>
+<tt xml:lang="en" xmlns="http://www.w3.org/ns/ttml" xmlns:tts="http://www.w3.org/ns/ttml#styling">
+ <head>
+  <layout>
+   <region tts:origin="10% 10%" xml:id="b1"/>
+   <region tts:origin="40% 40%" xml:id="b2"/>
+   <region tts:origin="10% 70%" xml:id="b3"/>
+  </layout>
+ </head>
+ <body>
+  <div region="bottom" xml:lang="en-US">
+   <p begin="00:00:09:20" end="00:00:12:7" region="b1">
+    ABC
+   </p>
+  </div>
+ </body>
 </tt>"""

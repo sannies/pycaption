@@ -1,9 +1,10 @@
 import re
-
+from builtins import str
 from copy import deepcopy
 
 from bs4 import BeautifulSoup, NavigableString
 from xml.sax.saxutils import escape
+import six
 
 from ..base import (
     BaseReader, BaseWriter, CaptionSet, CaptionList, Caption, CaptionNode,
@@ -47,7 +48,10 @@ DFXP_DEFAULT_REGION_ID = u'bottom'
 
 
 class DFXPReader(BaseReader):
+
+
     def __init__(self, *args, **kw):
+        super(DFXPReader, self).__init__(*args, **kw)
         self.read_invalid_positioning = (
             kw.get('read_invalid_positioning', False))
         self.nodes = []
@@ -59,7 +63,7 @@ class DFXPReader(BaseReader):
             return False
 
     def read(self, content):
-        if type(content) != unicode:
+        if type(content) != six.text_type:
             raise InvalidInputError(u'The content is not a unicode string.')
 
         dfxp_document = self._get_dfxp_parser_class()(
@@ -133,13 +137,16 @@ class DFXPReader(BaseReader):
                 timesplit[2] = timesplit[2] + u'.000'
             secsplit = timesplit[2].split(u'.')
             if len(timesplit) > 3:
-                secsplit.append((int(timesplit[3]) / 30) * 100)
+                secsplit.append((float(timesplit[3]) / 30 * 1000000))
             while len(secsplit[1]) < 3:
                 secsplit[1] += u'0'
             microseconds = (int(timesplit[0]) * 3600000000 +
                             int(timesplit[1]) * 60000000 +
                             int(secsplit[0]) * 1000000 +
                             int(secsplit[1]) * 1000)
+            if (len(secsplit) > 2):
+                microseconds += int(secsplit[2])
+
             return microseconds
         else:
             # Must be offset-time
@@ -269,7 +276,7 @@ class DFXPWriter(BaseWriter):
 
         :rtype: unicode
         """
-        dfxp = BeautifulSoup(DFXP_BASE_MARKUP, u'xml')
+        dfxp = BeautifulSoup(DFXP_BASE_MARKUP, u'lxml-xml')
         dfxp.find(u'tt')[u'xml:lang'] = u"en"
 
         langs = caption_set.get_languages()
@@ -303,7 +310,7 @@ class DFXPWriter(BaseWriter):
 
         for lang in langs:
             div = dfxp.new_tag(u'div')
-            div[u'xml:lang'] = unicode(lang)
+            div[u'xml:lang'] = six.text_type(lang)
             self._assign_positioning_data(div, lang, caption_set)
 
             for caption in caption_set.get_captions(lang):
@@ -1034,7 +1041,7 @@ class RegionCreator(object):
 
         :type prefix: unicode
         """
-        new_id = unicode((prefix or u'') + unicode(self._id_seed))
+        new_id = six.text_type((prefix or u'') + six.text_type(self._id_seed))
         self._id_seed += 1
         return new_id
 
